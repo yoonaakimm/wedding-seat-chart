@@ -23,7 +23,7 @@
   button{font-family:var(--body);cursor:pointer}
   input,select,textarea{font-family:var(--body);color:var(--ink)}
 
-  .app{display:flex;flex-direction:column;height:100vh;min-height:620px}
+  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:520px}
 
   header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:11px 18px;
     border-bottom:1px solid var(--line)}
@@ -86,10 +86,30 @@
   .zone{position:absolute;transform:translate(-50%,-50%);text-align:center;cursor:grab;user-select:none;
     color:rgba(110,102,92,.62);font-size:13px;letter-spacing:.24em;text-transform:uppercase;white-space:nowrap}
   .zone:active{cursor:grabbing}
+  .zone{touch-action:none}
+  .actions{display:flex;gap:8px;align-items:center}
+  .side-toggle{display:none}
+  .drop{border:1.5px dashed rgba(143,108,81,.55);border-radius:3px;padding:20px 14px;text-align:center;
+    background:rgba(255,253,250,.7);font-size:13px;color:var(--ink-soft);line-height:1.6}
+  .drop.over{background:rgba(143,108,81,.14);border-color:var(--brass)}
+  .drop b{color:var(--ink)}
+  .prev{margin-top:14px;font-size:13px}
+  .prev .ok{color:var(--ink)}
+  .prev .bad{color:var(--claret)}
+  .prev table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+  .prev th{text-align:left;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);
+    font-weight:500;padding:4px 6px;border-bottom:1px solid var(--line)}
+  .prev td{padding:4px 6px;border-bottom:1px solid var(--line)}
+  .shapes{display:flex;gap:6px}
+  .shapes button{flex:1;border:1px solid var(--line);background:#fff;border-radius:2px;padding:8px 4px 6px;
+    font-size:11px;color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:6px}
+  .shapes button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+  .shapes button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+  .shapes i{display:block;background:var(--paper-2);border:1px solid rgba(0,0,0,.15)}
   .zone.box{border:1px solid rgba(110,102,92,.3);border-radius:2px;padding:9px 20px;letter-spacing:.16em}
   .table{position:absolute;transform:translate(-50%,-50%)}
   .surface{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    border:1px solid rgba(0,0,0,.14);border-radius:3px;cursor:grab}
+    border:1px solid rgba(0,0,0,.14);border-radius:3px;cursor:grab;touch-action:none}
   .surface:active{cursor:grabbing}
   .table.full .surface{box-shadow:0 0 0 3px rgba(143,108,81,.22)}
   .table.over .surface{border-color:var(--claret);box-shadow:0 0 0 3px rgba(144,98,98,.22)}
@@ -190,9 +210,21 @@
   .vipbtn:hover{color:var(--brass)}
   .vipbtn.on{color:var(--brass)}
 
+  .modal.wide{max-width:700px}
   @media (max-width:900px){
-    aside{position:absolute;z-index:40;height:100%;background:var(--paper);box-shadow:6px 0 24px rgba(0,0,0,.2)}
-    .warn{display:none}
+    header{gap:8px 12px;padding:9px 12px}
+    .actions{order:9;width:100%;overflow-x:auto;padding-bottom:2px}
+    .actions .spacer{display:none}
+    .view{position:relative}
+    aside{position:absolute;z-index:40;top:0;bottom:0;left:0;max-width:86vw;background:var(--paper);
+      box-shadow:6px 0 24px rgba(0,0,0,.2);transform:translateX(-105%);transition:transform .2s}
+    aside.open{transform:none}
+    .side-toggle{display:inline-block;position:absolute;left:12px;bottom:14px;z-index:30}
+    .floor-tools{right:10px;bottom:14px}
+    .hand,.hint{left:50%;bottom:62px;max-width:92vw}
+    .warn,.stat-open{display:none}
+    .sheet{padding:14px 12px 60px}
+    table.gt th:nth-child(5),table.gt td:nth-child(5){display:none}
   }
   @media print{
     header,aside,.floor-tools,.x,.veil{display:none!important}
@@ -213,19 +245,21 @@
       <button id="tab-floor" aria-selected="true">Floor plan</button>
     </div>
     <div class="stat">Seated <b id="s-seated">0</b> / <span id="s-total">0</span></div>
-    <div class="stat">Open <b id="s-open">0</b></div>
+    <div class="stat stat-open">Open <b id="s-open">0</b></div>
     <div class="spacer"></div>
-    <button class="btn" id="b-import">Add guests</button>
-    <button class="btn" id="b-table">Tables</button>
-    <button class="btn" id="b-rules">Rules</button>
-    <button class="btn" id="b-new">New plan</button>
-    <button class="btn solid" id="b-export">Export &amp; backup</button>
-    <div class="save" id="save" title="Your plan is saved in this browser only">saved</div>
+    <div class="actions">
+      <button class="btn" id="b-import">Add guests</button>
+      <button class="btn" id="b-table">Tables</button>
+      <button class="btn" id="b-rules">Rules</button>
+      <button class="btn" id="b-new">New plan</button>
+      <button class="btn solid" id="b-export">Export &amp; backup</button>
+      <div class="save" id="save" title="Your plan is saved in this browser only">saved</div>
+    </div>
   </header>
 
   <!-- FLOOR -->
   <div class="view" id="v-floor">
-    <aside>
+    <aside id="aside">
       <div class="side-h">
         <h2>Guests</h2>
         <input class="field" id="q" placeholder="Search a name, group or diet">
@@ -238,8 +272,11 @@
     </aside>
     <div class="floorwrap" id="floorwrap">
       <div class="floorscroll" id="floorscroll">
-        <div class="floor" id="floor"><svg class="tether" id="tether"></svg></div>
+        <div id="sizer" style="position:relative;overflow:hidden">
+          <div class="floor" id="floor"><svg class="tether" id="tether"></svg></div>
+        </div>
       </div>
+      <button class="btn tiny side-toggle" id="b-side" style="background:var(--ink);color:var(--paper)">Guests</button>
       <div class="floor-tools">
         <button class="btn tiny" id="z-out">&minus;</button>
         <button class="btn tiny" id="z-in">+</button>
@@ -344,7 +381,7 @@ function load(){
     if(raw){S=normalize(JSON.parse(raw));found=true;}
   }catch(e){console.error("load failed",e);}
   loaded=true;lastSaved=found?serialize():"";render();
-  if(!found)welcome();
+  if(!found)welcome();else requestAnimationFrame(fit);
 }
 let lastSaved="";
 function serialize(){return JSON.stringify(S,(k,v)=>k.charAt(0)==="_"?undefined:v);}
@@ -444,6 +481,8 @@ function stats(){
   $("#s-seated").textContent=seatedCount();
   $("#s-total").textContent=S.guests.length;
   $("#s-open").textContent=Math.max(0,totalSeats()-seatedCount());
+  const un=S.guests.length-seatedCount();
+  $("#b-side").textContent="Guests"+(un>0?" · "+un+" to seat":"");
 }
 
 function renderGuests(){
@@ -471,7 +510,8 @@ function renderGuests(){
       const td=tid?table(tid):null;
       b.querySelector(".dot").style.background=g.role?"#8F6C51":(td?td.color:"rgba(110,102,92,.35)");
       b.querySelector(".mt").textContent=g.role?roleLabel(g.role):(hasDiet(g)?(g.diet||"Note"):"");
-      b.onclick=()=>{held=(held===g.id?null:g.id);render();};
+      b.onclick=()=>{held=(held===g.id?null:g.id);
+        if(held&&innerWidth<=900)$("#aside").classList.remove("open");render();};
       b.ondragstart=e=>{held=g.id;e.dataTransfer.setData("text/plain",g.id);renderFloor();renderHand();};
       box.appendChild(b);
     });
@@ -483,6 +523,7 @@ function renderFloor(){
   [...floor.querySelectorAll(".table,.zone")].forEach(n=>n.remove());
   floor.style.transform="scale("+zoom+")";
   floor.style.height=floorH()+"px";
+  const sz=$("#sizer");sz.style.width=(1700*zoom)+"px";sz.style.height=(floorH()*zoom)+"px";
   floor.classList.toggle("picking",!!held);
   floor.classList.toggle("chairs",chairMode);
 
@@ -544,6 +585,40 @@ function renderFloor(){
     floor.appendChild(el);
   });
   requestAnimationFrame(drawTethers);
+}
+/* Zoom and scroll so every table and label is in view. */
+function fit(){
+  const wrap=$("#floorwrap"), sc=$("#floorscroll");
+  const items=S.tables.map(t=>{const g=geo(t);const r=g.k==="round"?g.sr+30:Math.max(g.w,g.h)/2+60;return{x:t.x,y:t.y,r:r};})
+    .concat(S.zones.map(z=>({x:z.x,y:z.y,r:70})));
+  if(!items.length){zoom=.62;renderFloor();return;}
+  const x0=Math.min(...items.map(o=>o.x-o.r)), x1=Math.max(...items.map(o=>o.x+o.r));
+  const y0=Math.min(...items.map(o=>o.y-o.r)), y1=Math.max(...items.map(o=>o.y+o.r));
+  const w=wrap.clientWidth-24, h=wrap.clientHeight-70;
+  zoom=Math.max(.2,Math.min(1.2,Math.min(w/(x1-x0),h/(y1-y0))));
+  renderFloor();
+  sc.scrollLeft=Math.max(0,x0*zoom-(wrap.clientWidth-(x1-x0)*zoom)/2);
+  sc.scrollTop=Math.max(0,y0*zoom-12);
+}
+/* Floor coordinates of the middle of what's on screen, for placing new things. */
+function viewCenter(){
+  const sc=$("#floorscroll");
+  return{x:Math.round((sc.scrollLeft+sc.clientWidth/2)/zoom),y:Math.round((sc.scrollTop+sc.clientHeight/2)/zoom)};
+}
+/* Nearest spot to the middle of the screen that doesn't overlap another table. */
+function freeSpot(shape){
+  const reach=sh=>sh==="round"?175:(sh==="tall"?150:200);
+  const c=viewCenter(), me=reach(shape);
+  for(let ring=0;ring<30;ring++){
+    const steps=Math.max(1,ring*8);
+    for(let k=0;k<steps;k++){
+      const a=k/steps*2*Math.PI, x=Math.round(c.x+Math.cos(a)*ring*70), y=Math.round(c.y+Math.sin(a)*ring*70);
+      if(x<me||y<me||x>1700-me)continue;
+      if(S.tables.every(t=>Math.hypot(t.x-x,t.y-y)>reach(t.shape)+me)&&
+         S.zones.every(z=>Math.hypot(z.x-x,z.y-y)>me+50))return{x:x,y:y};
+    }
+  }
+  return{x:Math.max(160,c.x),y:floorH()-140};
 }
 function floorH(){return Math.max(1760,...S.tables.map(t=>t.y+320));}
 function short(n){const p=n.trim().split(/\s+/);return p.length>1?p[0]+" "+p[p.length-1][0]+".":n;}
@@ -666,9 +741,37 @@ function relayoutGroup(name){
 function toggleChair(t,i){
   const off=offOf(t).slice(), at=off.indexOf(i);
   if(at>=0)off.splice(at,1);
-  else{off.push(i);const k=t.id+":"+i;if(S.seats[k])delete S.seats[k];}
+  else{
+    off.push(i);const k=t.id+":"+i, gid=S.seats[k];
+    if(gid){delete S.seats[k];t.off=off;const to=firstOpen(t.id);if(to)S.seats[to]=gid;}
+  }
   t.off=off;touch();render();
 }
+/* Change a table's seat count. Guests in seats that disappear move to the
+   table's remaining open seats; only if it's full do they go back to unseated. */
+function setSeats(t,val){
+  val=Math.max(1,Math.min(24,val|0||t.seats));
+  const moved=[];
+  for(let i=val;i<t.seats;i++){const k=t.id+":"+i;if(S.seats[k]){moved.push(S.seats[k]);delete S.seats[k];}}
+  t.seats=val;t.off=offOf(t).filter(i=>i<val);
+  let lost=0;
+  moved.forEach(g=>{const k=firstOpen(t.id);if(k)S.seats[k]=g;else lost++;});
+  return lost;
+}
+function removeTable(t){
+  for(const k in S.seats)if(k.slice(0,k.lastIndexOf(":"))===t.id)delete S.seats[k];
+  S.tables=S.tables.filter(x=>x.id!==t.id);
+  if(t.group)relayoutGroup(t.group);
+}
+function setTableNo(t,val){
+  val=Math.max(1,Math.min(99,val|0||t.no));
+  const clash=S.tables.find(x=>x.id!==t.id&&x.no===val);
+  if(clash){alert("Table "+val+" is already "+clash.name+". Give that one a different number first.");return false;}
+  t.no=val;if(t.group)relayoutGroup(t.group);return true;
+}
+const SHAPES=[["round","Round",'width:22px;height:22px;border-radius:50%'],
+  ["tall","Long, vertical",'width:12px;height:24px'],["rect","Long, horizontal",'width:26px;height:12px']];
+const shapeOpts=SHAPES.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("");
 function dragZone(e,z,el){
   if(e.button!==0)return;
   e.preventDefault();
@@ -691,45 +794,218 @@ function dragTable(e,t){
       const nd=nodes[o.t.id];
       if(nd){nd.style.left=o.t.x+"px";nd.style.top=o.t.y+"px";}});};
   const up=()=>{window.removeEventListener("pointermove",mv);window.removeEventListener("pointerup",up);
-    if(moved){touch();requestAnimationFrame(drawTethers);}};
+    if(moved){touch();requestAnimationFrame(drawTethers);}else editTable(t);};
   window.addEventListener("pointermove",mv);window.addEventListener("pointerup",up);
 }
 
 /* ---------- modals ---------- */
-function modal(html){
+function modal(html,wide){
   const v=document.createElement("div");v.className="veil";
-  v.innerHTML='<div class="modal">'+html+"</div>";
+  v.innerHTML='<div class="modal'+(wide?" wide":"")+'">'+html+"</div>";
   v.onclick=e=>{if(e.target===v)v.remove();};
   document.body.appendChild(v);return v;
 }
-function importGuests(){
+/* ---------- guest list files ---------- */
+/* CSV/TSV parser that handles quoted fields, embedded commas and line breaks. */
+function parseDelimited(text){
+  text=text.replace(/^﻿/,"");
+  const first=text.split(/\r?\n/,1)[0]||"";
+  const count=c=>first.split(c).length-1;
+  const d=count("\t")?"\t":(count(";")>count(",")?";":",");
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){if(text[i+1]==='"'){f+='"';i++;}else q=false;}
+      else f+=c;
+    }else if(c==='"'&&f==="")q=true;
+    else if(c===d){row.push(f);f="";}
+    else if(c==="\n"||c==="\r"){
+      if(c==="\r"&&text[i+1]==="\n")i++;
+      row.push(f);rows.push(row);row=[];f="";
+    }else f+=c;
+  }
+  if(f!==""||row.length){row.push(f);rows.push(row);}
+  return rows;
+}
+/* Minimal .xlsx reader: an .xlsx file is a zip of XML, and browsers can
+   inflate zip entries natively, so no spreadsheet library is needed. */
+async function readXlsx(buf){
+  const u8=new Uint8Array(buf), dv=new DataView(buf), dec=new TextDecoder();
+  let e=u8.length-22;
+  while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;
+  if(e<0)throw new Error("not a zip");
+  const files={};
+  let p=dv.getUint32(e+16,true);
+  for(let n=dv.getUint16(e+10,true);n>0;n--){
+    const nl=dv.getUint16(p+28,true), xl=dv.getUint16(p+30,true), cl=dv.getUint16(p+32,true);
+    files[dec.decode(u8.subarray(p+46,p+46+nl))]={m:dv.getUint16(p+10,true),size:dv.getUint32(p+20,true),off:dv.getUint32(p+42,true)};
+    p+=46+nl+xl+cl;
+  }
+  async function read(name){
+    const f=files[name];if(!f)return null;
+    const start=f.off+30+dv.getUint16(f.off+26,true)+dv.getUint16(f.off+28,true);
+    const data=u8.subarray(start,start+f.size);
+    if(f.m===0)return dec.decode(data);
+    const out=await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer();
+    return dec.decode(out);
+  }
+  const xml=t=>new DOMParser().parseFromString(t,"application/xml");
+  const kids=(el,tag)=>[...el.getElementsByTagNameNS("*",tag)];
+  const strings=[];
+  const sst=await read("xl/sharedStrings.xml");
+  if(sst)kids(xml(sst),"si").forEach(si=>strings.push(kids(si,"t").filter(t=>t.parentNode.localName!=="rPh").map(t=>t.textContent).join("")));
+  // First sheet in workbook order.
+  let path="xl/worksheets/sheet1.xml";
+  const wb=await read("xl/workbook.xml"), rels=await read("xl/_rels/workbook.xml.rels");
+  if(wb&&rels){
+    const sh=kids(xml(wb),"sheet")[0];
+    const rid=sh&&(sh.getAttribute("r:id")||sh.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id"));
+    const rel=kids(xml(rels),"Relationship").find(r=>r.getAttribute("Id")===rid);
+    if(rel){const tg=rel.getAttribute("Target");path=tg.startsWith("/")?tg.slice(1):"xl/"+tg.replace(/^\.\//,"");}
+  }
+  const sheet=await read(path);
+  if(!sheet)throw new Error("no sheet");
+  const rows=[];
+  kids(xml(sheet),"row").forEach(r=>{
+    const out=[];
+    kids(r,"c").forEach((c,ci)=>{
+      const ref=c.getAttribute("r")||"";const letters=(ref.match(/^[A-Z]+/)||[""])[0];
+      let col=ci;if(letters){col=0;for(const ch of letters)col=col*26+ch.charCodeAt(0)-64;col--;}
+      const t=c.getAttribute("t"), v=kids(c,"v")[0];
+      let val="";
+      if(t==="s")val=v?strings[+v.textContent]||"":"";
+      else if(t==="inlineStr")val=kids(c,"t").map(x=>x.textContent).join("");
+      else val=v?v.textContent:"";
+      out[col]=val;
+    });
+    const at=+(r.getAttribute("r")||rows.length+1)-1;
+    rows[at]=Array.from(out,x=>x||"");
+  });
+  return Array.from(rows,x=>x||[]);
+}
+/* Work out which columns hold names, notes and dietary needs, from the header
+   row if there is one (works with Zola, The Knot, Google Sheets, Excel and RSVP exports). */
+function rowsToGuests(rows){
+  rows=rows.map(r=>r.map(c=>String(c==null?"":c).trim())).filter(r=>r.some(Boolean));
+  if(!rows.length)return{guests:[],skipped:0,cols:[],header:false};
+  const H=rows[0].map(h=>h.toLowerCase());
+  const find=(re,not)=>H.findIndex(h=>re.test(h)&&!(not&&not.test(h)));
+  const extra=/partner|plus|spouse|\b2\b|second/;
+  const c={
+    name:find(/^(full |guest |guest'?s |party )?names?$|^guests?$|^guest name|^name\b|^attendee/,extra),
+    first:find(/^first|given/,extra), last:find(/^last|surname|family name/,extra),
+    group:find(/group|relationship|relation|party|household|categor|side|circle|tag|^list/),
+    note:find(/^notes?$|comment|^about/),
+    diet:find(/diet|meal|allerg|food|entr[eé]e|menu/),
+    rsvp:find(/rsvp|attend|status|response|coming|reply/)
+  };
+  const header=c.name>=0||c.first>=0;
+  // A "Meal choice" column holds entrées (Chicken, Fish); only real restrictions count as dietary needs.
+  const mealCol=header&&c.diet>=0&&!/diet|allerg|restrict/.test(H[c.diet]);
+  if(!header){c.name=0;c.first=-1;c.last=-1;c.group=-1;c.note=rows[0].length>1?1:-1;c.diet=rows[0].length>2?2:-1;c.rsvp=-1;}
+  const body=header?rows.slice(1):rows;
+  const guests=[];let skipped=0;
+  body.forEach(r=>{
+    const name=(c.name>=0?r[c.name]:[r[c.first],c.last>=0?r[c.last]:""].filter(Boolean).join(" "))||"";
+    if(!name.trim())return;
+    if(c.rsvp>=0&&/declin|regret|not attending|can.?t|cannot|^no$|^n$|^not coming/i.test(r[c.rsvp]||"")){skipped++;return;}
+    const d=c.diet>=0?(r[c.diet]||""):"";
+    const dl=d.toLowerCase();
+    const dm=DIETS.find(x=>dl===x.toLowerCase())||DIETS.find(x=>x!=="Other"&&dl.startsWith(x.toLowerCase()));
+    const rest=dm?d.slice(dm.length).replace(/^[\s,;:\-–—(]+|\)$/g,""):"";
+    const none=/^(none|n\/?a|no|-|—|regular|standard)$/i.test(d);
+    const meal=mealCol&&d&&!dm&&!none;
+    guests.push({name:name.replace(/\s+/g," ").trim(),
+      note:[c.group>=0?r[c.group]:"",c.note>=0?r[c.note]:"",meal?"Meal: "+d:""].filter(Boolean).join(" · "),
+      diet:(none||meal)?"":(dm||(d?"Other":"")),dietNote:(none||meal)?"":(dm?rest:d)});
+  });
+  const label=i=>rows[0][i];
+  const cols=header?[
+    ["Name",c.name>=0?label(c.name):[label(c.first),c.last>=0?label(c.last):""].filter(Boolean).join(" + ")],
+    ["Note",[c.group,c.note].filter(i=>i>=0).map(label).join(" + ")],
+    ["Dietary",c.diet>=0?label(c.diet):""],
+    ["Skips declined",c.rsvp>=0?label(c.rsvp):""]
+  ].filter(x=>x[1]):[];
+  return{guests:guests,skipped:skipped,cols:cols,header:header};
+}
+async function readGuestFile(file){
+  const n=file.name.toLowerCase();
+  if(/\.(xls|numbers|ods)$/.test(n))
+    throw new Error("This app reads .xlsx and .csv files. In your spreadsheet app, use File → Save As (or Download) and pick Excel (.xlsx) or CSV.");
+  if(/\.xlsx$/.test(n)||file.type.includes("spreadsheetml")){
+    try{return await readXlsx(await file.arrayBuffer());}
+    catch(e){console.error(e);throw new Error("That Excel file couldn't be read. Try saving it as CSV instead.");}
+  }
+  return parseDelimited(await file.text());
+}
+function importGuests(file){
   const v=modal('<h2>Add guests</h2>'+
-    '<p class="sub">Paste one guest per line, straight from a spreadsheet, RSVP export or notes app.</p>'+
-    '<label>Paste list</label>'+
-    '<textarea class="mono" id="i-txt" placeholder="Margaret Hollis, Aunt, Vegetarian&#10;Tom Okafor, College friends&#10;Dev Raman"></textarea>'+
-    '<div class="note">Format: <b>Name, note, dietary</b>. Note and dietary are optional. '+
-    'Commas or tabs both work, so you can copy columns from Excel or Google Sheets.</div>'+
-    '<div class="acts"><button class="btn" id="i-x">Cancel</button><button class="btn solid" id="i-ok">Add guests</button></div>');
-  v.querySelector("#i-x").onclick=()=>v.remove();
-  v.querySelector("#i-ok").onclick=()=>{
+    '<p class="sub">Bring in your guest list from Excel, Google Sheets, Zola, The Knot or any RSVP export.</p>'+
+    '<div class="drop" id="i-drop"><b>Drop a CSV or Excel file here</b><br>or <button class="btn tiny" id="i-pick">Choose a file</button></div>'+
+    '<label>Or paste your list</label>'+
+    '<textarea class="mono" id="i-txt" style="min-height:120px" placeholder="Margaret Hollis, Aunt, Vegetarian&#10;Tom Okafor, College friends&#10;Dev Raman"></textarea>'+
+    '<div class="prev" id="i-prev"></div>'+
+    '<div class="note">We look for columns like <b>Name</b> (or First and Last name), <b>Group</b> or <b>Notes</b>, '+
+    '<b>Dietary</b> or <b>Meal</b>, and <b>RSVP</b>. Guests marked as declined are skipped. '+
+    'With no header row, the first column is the name, the second a note, the third dietary needs.</div>'+
+    '<div class="acts"><button class="btn" id="i-x">Cancel</button><button class="btn solid" id="i-ok" disabled>Add guests</button></div>',true);
+  const q=s=>v.querySelector(s), prev=q("#i-prev"), ok=q("#i-ok");
+  let pending=null;
+  function show(res,src){
+    pending=res;
     const known=new Set(S.guests.map(g=>g.name.toLowerCase()));
-    let added=0,dupes=0;
-    v.querySelector("#i-txt").value.split("\n").map(s=>s.trim()).filter(Boolean).forEach(l=>{
-      const p=l.split(/\t|,/).map(s=>s.trim().replace(/^"|"$/g,""));
-      if(!p[0])return;
-      if(known.has(p[0].toLowerCase())){dupes++;return;}
-      known.add(p[0].toLowerCase());
-      const d=p[2]||"", match=DIETS.find(x=>x.toLowerCase()===d.toLowerCase());
-      S.guests.push({id:uid(),name:p[0],note:p[1]||"",diet:match||(d?"Other":""),dietNote:match?"":d});
-      added++;
+    const fresh=res.guests.filter(g=>!known.has(g.name.toLowerCase()));
+    const dup=res.guests.length-fresh.length;
+    ok.disabled=!fresh.length;
+    ok.textContent=fresh.length?"Add "+fresh.length+" guest"+(fresh.length>1?"s":""):"Add guests";
+    if(!res.guests.length){prev.innerHTML='<div class="bad">No guest names found'+(src?" in "+esc(src):"")+'.</div>';return;}
+    let h='<div class="ok"><b>'+res.guests.length+' guest'+(res.guests.length>1?"s":"")+'</b> found'+(src?" in "+esc(src):"")+
+      (res.skipped?" · "+res.skipped+" skipped as declined":"")+(dup?" · "+dup+" already on your list":"")+'</div>';
+    if(res.cols.length)h+='<div style="color:var(--ink-soft);margin-top:4px">'+res.cols.map(x=>x[0]+" ← "+esc(x[1])).join(" &nbsp;·&nbsp; ")+'</div>';
+    h+='<table><tr><th>Name</th><th>Note</th><th>Dietary</th></tr>'+
+      res.guests.slice(0,5).map(g=>'<tr><td>'+esc(g.name)+'</td><td>'+esc(g.note)+'</td><td>'+esc(dietText(g))+'</td></tr>').join("")+
+      (res.guests.length>5?'<tr><td colspan="3" style="color:var(--ink-soft)">…and '+(res.guests.length-5)+' more</td></tr>':"")+'</table>';
+    prev.innerHTML=h;
+  }
+  async function takeFile(f){
+    if(!f)return;
+    prev.innerHTML='<div>Reading '+esc(f.name)+'…</div>';
+    try{show(rowsToGuests(await readGuestFile(f)),f.name);q("#i-txt").value="";}
+    catch(err){pending=null;ok.disabled=true;prev.innerHTML='<div class="bad">'+esc(err.message)+'</div>';}
+  }
+  const drop=q("#i-drop");
+  drop.ondragover=e=>{e.preventDefault();e.stopPropagation();drop.classList.add("over");};
+  drop.ondragleave=()=>drop.classList.remove("over");
+  drop.ondrop=e=>{e.preventDefault();e.stopPropagation();drop.classList.remove("over");takeFile(e.dataTransfer.files[0]);};
+  q("#i-pick").onclick=()=>{
+    const inp=document.createElement("input");inp.type="file";
+    inp.accept=".csv,.tsv,.txt,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    inp.onchange=()=>takeFile(inp.files[0]);inp.click();
+  };
+  q("#i-txt").oninput=()=>{
+    const t=q("#i-txt").value;
+    if(!t.trim()){pending=null;prev.innerHTML="";ok.disabled=true;ok.textContent="Add guests";return;}
+    show(rowsToGuests(parseDelimited(t)),"");
+  };
+  q("#i-x").onclick=()=>v.remove();
+  ok.onclick=()=>{
+    if(!pending)return;
+    const known=new Set(S.guests.map(g=>g.name.toLowerCase()));
+    pending.guests.forEach(g=>{
+      if(known.has(g.name.toLowerCase()))return;
+      known.add(g.name.toLowerCase());
+      S.guests.push({id:uid(),name:g.name,note:g.note,diet:g.diet,dietNote:g.dietNote});
     });
     v.remove();touch();render();
-    if(dupes)alert("Added "+added+" guest"+(added===1?"":"s")+". Skipped "+dupes+" already on the list.");
+    if(innerWidth<=900)$("#aside").classList.add("open");
   };
+  if(file)takeFile(file);
 }
 function tablesDialog(){
   const v=modal('<h2>Tables</h2>'+
-    '<p class="sub">Rename tables, change how many seats each holds, or add and remove tables. Drag them on the floor plan to match the room.</p>'+
+    '<p class="sub">Rename tables, change their shape and seat count, or add and remove tables. '+
+    'Drag tables on the floor plan to match your room, or click one to edit it there.</p>'+
     '<div class="row"><span style="flex:2;font-size:13px">Set every table to</span>'+
       '<input class="field" id="t-all" type="number" min="2" max="24" value="8" style="max-width:80px">'+
       '<button class="btn" id="t-allgo">Apply to all</button></div>'+
@@ -738,8 +1014,7 @@ function tablesDialog(){
     '<div id="t-list" style="margin-top:14px"></div>'+
     '<div class="row" style="margin-top:14px">'+
       '<input class="field" id="t-name" placeholder="New table name">'+
-      '<select class="field" id="t-shape"><option value="tall">Long (vertical)</option>'+
-      '<option value="rect">Long (horizontal)</option><option value="round">Round</option></select>'+
+      '<select class="field" id="t-shape">'+shapeOpts+'</select>'+
       '<input class="field" id="t-seats" type="number" min="2" max="24" value="8" style="max-width:80px">'+
       '<button class="btn" id="t-add">Add</button></div>'+
     '<h3>Room labels</h3>'+
@@ -747,7 +1022,7 @@ function tablesDialog(){
     '<div id="z-list"></div>'+
     '<div class="row" style="margin-top:10px"><input class="field" id="z-name" placeholder="e.g. Entrance, Cake, Photo booth">'+
       '<button class="btn" id="z-add" style="max-width:80px">Add</button></div>'+
-    '<div class="acts"><button class="btn solid" id="t-done">Done</button></div>');
+    '<div class="acts"><button class="btn solid" id="t-done">Done</button></div>',true);
   const ZL=v.querySelector("#z-list");
   function drawZones(){
     ZL.innerHTML=S.zones.length?"":'<p class="sub">No labels yet.</p>';
@@ -766,7 +1041,7 @@ function tablesDialog(){
   }
   v.querySelector("#z-add").onclick=()=>{
     const lb=v.querySelector("#z-name").value.trim();if(!lb)return;
-    S.zones.push({x:240,y:150,label:lb,box:true});
+    const c=viewCenter();S.zones.push({x:c.x,y:Math.max(60,c.y-120),label:lb,box:true});
     v.querySelector("#z-name").value="";touch();drawZones();renderFloor();
   };
   drawZones();
@@ -778,45 +1053,30 @@ function tablesDialog(){
       const r=document.createElement("div");r.className="trow";
       r.innerHTML='<input class="cell noin" type="number" min="1" max="99" '+
           'title="Table number" style="width:50px;border-color:var(--line);font-family:var(--display)">'+
-        '<input class="cell namein" style="flex:1;border-color:var(--line)">'+
-        '<input class="cell seatin" type="number" min="'+Math.max(1,n)+'" max="24" style="width:62px;border-color:var(--line)">'+
-        '<span class="sw"></span>'+'<span style="font-size:11px;color:var(--ink-soft);width:60px">'+n+' seated</span>'+
-        '<button class="btn tiny">Remove</button>';
-      const swBox=r.querySelector(".sw");
-      PAL.forEach(c=>{const b=document.createElement("button");
-        b.style.background=c;b.title=c;b.setAttribute("aria-pressed",(t.color||"")===c);
-        b.onclick=()=>{t.color=c;touch();draw();renderFloor();};swBox.appendChild(b);});
-      const noEl=r.querySelector(".noin"), nameEl=r.querySelector(".namein"), seatEl=r.querySelector(".seatin");
-      noEl.value=t.no;nameEl.value=t.name;seatEl.value=t.seats;
-      noEl.onchange=()=>{
-        const val=Math.max(1,Math.min(99,+noEl.value||t.no));
-        const clash=S.tables.find(x=>x.id!==t.id&&x.no===val);
-        if(clash){alert("Table "+val+" is already "+clash.name+". Give that one a different number first.");
-          noEl.value=t.no;return;}
-        t.no=val;
-        if(t.group)relayoutGroup(t.group);
-        touch();draw();render();
-      };
-      nameEl.onchange=()=>{t.name=nameEl.value;touch();render();};
-      seatEl.onchange=()=>{
-        const val=Math.max(1,Math.min(24,+seatEl.value||t.seats));
-        for(let i=val;i<t.seats;i++)delete S.seats[t.id+":"+i];
-        t.seats=val;t.off=offOf(t).filter(i=>i<val);touch();draw();render();
-      };
-      r.querySelector("button").onclick=()=>{
-        for(const k in S.seats)if(k.slice(0,k.lastIndexOf(":"))===t.id)delete S.seats[k];
-        S.tables=S.tables.filter(x=>x.id!==t.id);
-        if(t.group)relayoutGroup(t.group);
-        touch();draw();render();
-      };
+        '<input class="cell namein" title="Table name" style="flex:1;min-width:90px;border-color:var(--line)">'+
+        '<select class="cell shapein" title="Shape" style="width:132px;border-color:var(--line)">'+shapeOpts+'</select>'+
+        '<input class="cell seatin" type="number" min="1" max="24" title="Seats" style="width:56px;border-color:var(--line)">'+
+        '<span style="font-size:11px;color:var(--ink-soft);width:54px">'+n+' seated</span>'+
+        '<button class="btn tiny edit">More</button><button class="btn tiny rm">Remove</button>';
+      const noEl=r.querySelector(".noin"), nameEl=r.querySelector(".namein"), seatEl=r.querySelector(".seatin"), shEl=r.querySelector(".shapein");
+      noEl.value=t.no;nameEl.value=t.name;seatEl.value=t.seats;shEl.value=t.shape;
+      noEl.onchange=()=>{if(setTableNo(t,+noEl.value)){touch();draw();render();}else noEl.value=t.no;};
+      nameEl.onchange=()=>{t.name=nameEl.value.trim()||t.name;touch();render();};
+      shEl.onchange=()=>{t.shape=shEl.value;delete t.group;touch();render();};
+      seatEl.onchange=()=>{const lost=setSeats(t,+seatEl.value);touch();draw();render();
+        if(lost)alert(lost+" guest"+(lost>1?"s":"")+" no longer fit at "+t.name+" and moved back to Not yet seated.");};
+      r.querySelector(".edit").onclick=()=>editTable(t,draw);
+      r.querySelector(".rm").onclick=()=>{
+        if(n&&!confirm("Remove "+t.name+"? Its "+n+" guest"+(n>1?"s":"")+" will move back to Not yet seated."))return;
+        removeTable(t);touch();draw();render();};
       L.appendChild(r);
     });
   }
   v.querySelector("#t-allgo").onclick=()=>{
-    const val=Math.max(1,Math.min(24,+v.querySelector("#t-all").value||10));
-    S.tables.forEach(t=>{for(let i=val;i<t.seats;i++)delete S.seats[t.id+":"+i];
-      t.seats=val;t.off=offOf(t).filter(i=>i<val);});
+    const val=+v.querySelector("#t-all").value||8;let lost=0;
+    S.tables.forEach(t=>{lost+=setSeats(t,val);});
     touch();draw();render();
+    if(lost)alert(lost+" guest"+(lost>1?"s":"")+" no longer fit and moved back to Not yet seated.");
   };
   v.querySelector("#t-renum").onclick=()=>{
     if(!confirm("Renumber every table 1 to "+S.tables.length+", keeping the current order?"))return;
@@ -825,14 +1085,50 @@ function tablesDialog(){
     touch();draw();render();
   };
   v.querySelector("#t-add").onclick=()=>{
-    const no=S.tables.reduce((m,t)=>Math.max(m,t.no||0),0)+1;
+    const no=S.tables.reduce((m,t)=>Math.max(m,t.no||0),0)+1, shape=v.querySelector("#t-shape").value, at=freeSpot(shape);
     S.tables.push({id:uid(),no:no,name:v.querySelector("#t-name").value.trim()||("Table "+no),
-      shape:v.querySelector("#t-shape").value,seats:Math.max(2,+v.querySelector("#t-seats").value||8),
-      color:PAL[(no-1)%PAL.length],x:220,y:430});
+      shape:shape,seats:Math.max(2,Math.min(24,+v.querySelector("#t-seats").value||8)),
+      off:[],color:PAL[(no-1)%PAL.length],x:at.x,y:at.y});
     v.querySelector("#t-name").value="";touch();draw();render();
   };
   v.querySelector("#t-done").onclick=()=>v.remove();
   draw();
+}
+function editTable(t,after){
+  const v=modal('<h2>Edit table</h2>'+
+    '<div class="row"><label style="margin:0;flex:0 0 70px">Number<input class="field" id="et-no" type="number" min="1" max="99" style="margin-top:5px"></label>'+
+    '<label style="margin:0;flex:1">Name<input class="field" id="et-name" style="margin-top:5px"></label>'+
+    '<label style="margin:0;flex:0 0 80px">Seats<input class="field" id="et-seats" type="number" min="1" max="24" style="margin-top:5px"></label></div>'+
+    '<label>Shape</label><div class="shapes" id="et-shape">'+
+      SHAPES.map(x=>'<button data-v="'+x[0]+'"><i style="'+x[2]+'"></i>'+x[1]+'</button>').join("")+'</div>'+
+    '<label>Colour</label><div class="sw" id="et-col"></div>'+
+    '<div class="note">To take away a single chair (say, the side facing the dance floor), use <b>Edit chairs</b> on the floor plan.</div>'+
+    '<div class="acts"><button class="btn" id="et-rm" style="margin-right:auto">Delete table</button>'+
+    '<button class="btn solid" id="et-ok">Done</button></div>');
+  const q=s=>v.querySelector(s);
+  const close=()=>{v.remove();if(after)after();};
+  v.onclick=e=>{if(e.target===v)close();};
+  q("#et-no").value=t.no;q("#et-name").value=t.name;q("#et-seats").value=t.seats;
+  q("#et-no").onchange=()=>{if(setTableNo(t,+q("#et-no").value)){touch();render();}else q("#et-no").value=t.no;};
+  q("#et-name").oninput=()=>{t.name=q("#et-name").value;touch();renderFloor();};
+  q("#et-name").onchange=()=>{t.name=t.name.trim()||"Table "+t.no;q("#et-name").value=t.name;touch();render();};
+  q("#et-seats").onchange=()=>{const lost=setSeats(t,+q("#et-seats").value);q("#et-seats").value=t.seats;touch();render();
+    if(lost)alert(lost+" guest"+(lost>1?"s":"")+" no longer fit and moved back to Not yet seated.");};
+  function drawShape(){q("#et-shape").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===t.shape));}
+  q("#et-shape").querySelectorAll("button").forEach(b=>b.onclick=()=>{t.shape=b.dataset.v;delete t.group;touch();render();drawShape();});
+  function drawCol(){
+    const box=q("#et-col");box.innerHTML="";
+    PAL.forEach(c=>{const b=document.createElement("button");b.style.background=c;b.title=c;
+      b.style.width=b.style.height="24px";b.setAttribute("aria-pressed",(t.color||"")===c);
+      b.onclick=()=>{t.color=c;touch();renderFloor();drawCol();};box.appendChild(b);});
+  }
+  drawShape();drawCol();
+  q("#et-rm").onclick=()=>{
+    const n=countAt(t.id);
+    if(!confirm("Delete "+t.name+"?"+(n?" Its "+n+" guest"+(n>1?"s":"")+" will move back to Not yet seated.":"")))return;
+    removeTable(t);touch();render();close();
+  };
+  q("#et-ok").onclick=close;
 }
 function rulesDialog(){
   const opts=S.guests.slice().sort((a,b)=>a.name.localeCompare(b.name))
@@ -987,7 +1283,7 @@ function setView(v){
 }
 $("#tab-floor").onclick=()=>setView("floor");
 $("#tab-sheet").onclick=()=>setView("sheet");
-$("#b-import").onclick=importGuests;
+$("#b-import").onclick=()=>importGuests();
 $("#b-table").onclick=tablesDialog;
 $("#b-addtable").onclick=tablesDialog;
 $("#b-chairs").onclick=()=>{
@@ -1005,6 +1301,7 @@ $("#b-new").onclick=welcome;
 $("#evt").onclick=renamePlan;
 $("#save").onclick=save;
 window.addEventListener("beforeunload",e=>{
+  clearTimeout(t_);save();
   if(serialize()!==lastSaved){e.preventDefault();e.returnValue="";}
 });
 $("#b-print").onclick=()=>window.print();
@@ -1022,16 +1319,23 @@ document.querySelectorAll("th[data-sort]").forEach(th=>{
 });
 $("#z-in").onclick=()=>{zoom=Math.min(1.8,zoom+.12);renderFloor();};
 $("#z-out").onclick=()=>{zoom=Math.max(.2,zoom-.12);renderFloor();};
-$("#z-fit").onclick=()=>{
-  const w=$("#floorwrap").clientWidth-30,h=$("#floorwrap").clientHeight-30;
-  zoom=Math.max(.2,Math.min(1.5,Math.min(w/1700,h/floorH())));renderFloor();
-};
+$("#z-fit").onclick=fit;
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){
     const v=document.querySelector(".veil");
     if(v&&v.onclick)v.remove(); else if(!v&&held){held=null;render();}
   }
 });
+/* Dropping a spreadsheet anywhere on the page opens the import with it. */
+const hasFiles=e=>e.dataTransfer&&[...e.dataTransfer.types].includes("Files");
+window.addEventListener("dragover",e=>{if(hasFiles(e))e.preventDefault();});
+window.addEventListener("drop",e=>{
+  if(!hasFiles(e))return;
+  e.preventDefault();
+  if(document.querySelector(".veil"))return;
+  importGuests(e.dataTransfer.files[0]);
+});
+$("#b-side").onclick=()=>$("#aside").classList.toggle("open");
 window.addEventListener("resize",()=>{if(view==="floor")requestAnimationFrame(drawTethers);});
 load();
 })();

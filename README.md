@@ -6,7 +6,10 @@ A wedding seating chart that runs entirely in the browser. Couples set up their 
 - Floor plan with round, long or horizontal tables, a head table, and room labels (bar, DJ, dance floor) you can drag around
 - Guest sheet with dietary needs and notes, sortable and printable
 - "Keep apart" and "keep together" rules, flagged on the plan as soon as they're broken
-- Paste guests from a spreadsheet, RSVP export or notes app
+- Import a guest list by dropping a CSV or Excel (.xlsx) file, or by pasting. Columns are detected automatically (Name or First + Last, Group/Notes, Dietary/Meal, RSVP), declined guests are skipped, and a preview shows the result before anything is added
+- Click any table to rename it, renumber it, change its shape (round, long vertical, long horizontal), seat count or colour. Guests in removed seats move to the table's open seats
+- Remove single chairs with Edit chairs
+- Works on phones: the guest list becomes a slide-out drawer
 - Export a seating list or CSV for the caterer and venue
 - Backup files to move a plan between devices or share it with a partner or planner
 
